@@ -1,5 +1,6 @@
 
 import os
+import json
 
 from fastapi import FastAPI
 
@@ -10,8 +11,10 @@ from src.helper.cache import get_data
 
 #%% Data setup.
 
+with open("config.json", "r") as f:
+    config = json.load(f)    
 
-setup_data_manager()
+setup_data_manager(config)
 
 
 #%% FastAPI.

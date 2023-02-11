@@ -4,9 +4,19 @@ from src.base.enums import Exchange
 
 class DataManager():
 
-    def __init__(self, exchange: Exchange, quote_asset: str, timeframes: 'list[str]'):
+    def __init__(self, config: 'list[dict]'):
 
-        self.__exchange = exchange
+        self.__exchanges = {}
+
+        for exchange_config in config:
+            exchange_name = exchange_config['exchange']
+            
+            #TODO: check for valid exchange names.
+            exchange = Exchange(exchange_name)
+
+            symbols_config = exchange_config['symbols']
+            
+         
         self.__quote_asset = quote_asset
 
         self.__api_client = None
