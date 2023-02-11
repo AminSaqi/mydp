@@ -1,0 +1,28 @@
+[
+    {
+        "exchange": "binance_spot",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "timeframes": [
+                    "4h",
+                    "1d"
+                ]
+            },
+            {
+                "symbol": "ETHUSDT",
+                "timeframes": [
+                    "4h",
+                    "1d"
+                ]
+            },
+            {
+                "symbol": "ETHBTC",
+                "timeframes": [
+                    "4h",
+                    "1d"
+                ]
+            }
+        ]
+    }
+]
