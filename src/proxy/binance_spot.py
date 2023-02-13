@@ -6,7 +6,11 @@ from binance.spot import Spot
 from binance.websocket.spot.websocket_client import SpotWebsocketClient
 from binance.error import ClientError
 
-class BinanceSpotProxy():
+from src.base.interfaces import ExchangeProxy
+from src.base.results import ServiceResult
+import src.base.errors as error
+
+class BinanceSpotProxy(ExchangeProxy):
 
     def __init__(self, symbols_config: 'list[dict]'):
          
@@ -127,16 +131,27 @@ class BinanceSpotProxy():
             return None
 
 
-    def get_candles(self, symbol_name: str, timeframe: str, count: int):
+    def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame]:
+
+        result = ServiceResult[pd.DataFrame]()
 
         symbol_timeframes = self.__get_symbol_timeframes(symbol_name)     
 
         if symbol_timeframes is None:
-            return "Invalid Symbol."
+            result.success = False
+            result.message = error.INVALID_SYMBOL
+            return result
 
         if timeframe not in symbol_timeframes:
-            return "Invalid Timeframe."
+            result.success = False
+            result.message = error.INVALID_TIMEFRAME
+            return result
 
-        return self.__data[(symbol_name, timeframe)].tail(count).copy()
+        df = self.__data[(symbol_name, timeframe)].tail(count).copy()
+
+        result.success = True
+        result.result = df
+
+        return result
         
         

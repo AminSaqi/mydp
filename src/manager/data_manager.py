@@ -1,13 +1,18 @@
 
+import pandas as pd
+
 from src.base.enums import Exchange
+from src.base.interfaces import ExchangeProxy
 from src.proxy import BinanceSpotProxy
+from src.base.results import ServiceResult
+import src.base.errors as error
 
 
 class DataManager():
 
     def __init__(self, config: 'list[dict]'):
 
-        self.__exchanges: 'dict[str, BinanceSpotProxy]' = {}
+        self.__exchanges: 'dict[str, ExchangeProxy]' = {}
 
         for exchange_config in config:
             exchange_name = exchange_config['exchange']
@@ -40,11 +45,12 @@ class DataManager():
         else:
             return None
 
-    def get_candles(self, exchange_name: str, symbol_name: str, timeframe: str, count: int):
 
+    def get_candles(self, exchange_name: str, symbol_name: str, timeframe: str, count: int):
+        
         exchange = self.__get_exchange(exchange_name)
         if exchange is None:
-            return "Invalid Exchange."
+            return ServiceResult[pd.DataFrame](success=False, message=error.INVALID_EXCHANGE)
 
         return exchange.get_candles(symbol_name, timeframe, count)
 
