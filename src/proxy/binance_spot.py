@@ -21,7 +21,9 @@ class BinanceSpotProxy():
         self.__prepare_historical_data()
         self.__connect_to_data_streams() 
 
-#%% Historical data
+
+#%% Historical data setup.
+
 
     def __prepare_historical_data(self):
         
@@ -53,7 +55,9 @@ class BinanceSpotProxy():
         
         return df
 
-#%% Socket data.
+
+#%% Socket setup.
+
 
     def __connect_to_data_streams(self):
 
@@ -112,5 +116,27 @@ class BinanceSpotProxy():
             self.__data[symbol] = row
       
            
+#%% Data methods.
 
 
+    def __get_symbol_timeframes(self, symbol_name):
+
+        if symbol_name in self.__symbols_config:
+            return self.__symbols_config[symbol_name]
+        else:
+            return None
+
+
+    def get_candles(self, symbol_name: str, timeframe: str, count: int):
+
+        symbol_timeframes = self.__get_symbol_timeframes(symbol_name)     
+
+        if symbol_timeframes is None:
+            return "Invalid Symbol."
+
+        if timeframe not in symbol_timeframes:
+            return "Invalid Timeframe."
+
+        return self.__data[(symbol_name, timeframe)].tail(count).copy()
+        
+        
