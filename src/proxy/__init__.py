@@ -1,2 +1,2 @@
 
-from binance_spot import BinanceSpotProxy
+from .binance_spot import BinanceSpotProxy

@@ -1,5 +1,7 @@
 
-import os
+import sys
+sys.path.append('..')
+
 import json
 
 from fastapi import FastAPI, status
@@ -25,17 +27,17 @@ app = FastAPI()
 
 
 @app.get("/")
-async def root():    
-    return Response(content=ApiResult(success=True))
+async def root() -> ApiResult:    
+    return ApiResult(success=True)
 
 
 @app.get("/candles/{exchange}/{symbol}/{timeframe}/{count}")
-async def candles(exchange: str, symbol: str, timeframe: str, count: int):
+async def candles(exchange: str, symbol: str, timeframe: str, count: int, response: Response) -> ApiResult:
     
     data_result = data_service.get_candles(exchange, symbol, timeframe, count)
     api_result = ApiResult(data_result)
 
-    if api_result.success:
-        return Response(content=api_result, status_code=status.HTTP_200_OK)
-    else:
-        return Response(content=api_result, status_code=status.HTTP_400_BAD_REQUEST)
+    if not api_result.success:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+
+    return api_result

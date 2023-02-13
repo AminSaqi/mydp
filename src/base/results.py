@@ -5,7 +5,7 @@ import pandas as pd
 
 
 T = TypeVar('T')
-Dict = TypeVar('Dict', dict)
+Dict = TypeVar('Dict', dict, None)
 
 
 class ServiceResult(Generic[T]):
@@ -23,7 +23,7 @@ class ApiResult(ServiceResult[Dict]):
 
         if service_result:    
             self.success = service_result.success
-            self.result = service_result.result.to_dict(orient="records") if service_result.result else {}
+            self.result = service_result.result.to_dict(orient="records") if (service_result.result is not None) else {}
             self.message = service_result.message
         else:
             self.success = success

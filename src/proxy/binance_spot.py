@@ -32,8 +32,8 @@ class BinanceSpotProxy(ExchangeProxy):
     def __prepare_historical_data(self):
         
         symbols = self.__symbols_config.keys()
-        for symbol in symbols:
-            timeframes = self.__symbols_config['timeframes']
+        for symbol in symbols:            
+            timeframes = self.__symbols_config[symbol]
             for timeframe in timeframes:
                 df = self.__fetch_kline(symbol, timeframe)
                 self.__data[(symbol, timeframe)] = df
@@ -72,8 +72,8 @@ class BinanceSpotProxy(ExchangeProxy):
         for symbol in symbols:
             tfs = self.__symbols_config[symbol]
             symbol_streams = [symbol.lower() + st for st in [stream_postfix.format(tf) for tf in tfs]]        
-            streams.append(symbol_streams)
-
+            streams.extend(symbol_streams)
+    
         self.__socket_client.live_subscribe(stream=streams, id=1, callback=self.__handle_socket_message)
 
 
@@ -89,7 +89,7 @@ class BinanceSpotProxy(ExchangeProxy):
 
             elif msg['e'] == 'error':
                 #TODO: log error
-                raise msg     
+                print(msg)
 
 
     def __handle_data_event(self, msg):
@@ -101,8 +101,8 @@ class BinanceSpotProxy(ExchangeProxy):
         timeframe = kline['i']
         
         candle = {
-            'open_timestamp': kline['T'],
-            'open_datetime': pd.to_datetime(kline['T'], unit='ms'),
+            'open_timestamp': kline['t'],
+            'open_datetime': pd.to_datetime(kline['t'], unit='ms'),
             'open': kline['o'],
             'high': kline['h'],
             'low': kline['l'],
@@ -113,11 +113,11 @@ class BinanceSpotProxy(ExchangeProxy):
         row = pd.DataFrame.from_records(data=[candle], index='open_datetime')
 
         if (symbol, timeframe) in self.__data:
-            df = self.__data[symbol]            
+            df = self.__data[(symbol, timeframe)]            
             df_new = row.combine_first(df).tail(500)
-            self.__data[symbol] = df_new
+            self.__data[(symbol, timeframe)] = df_new
         else:
-            self.__data[symbol] = row
+            self.__data[(symbol, timeframe)] = row
       
            
 #%% Data methods.
@@ -148,6 +148,8 @@ class BinanceSpotProxy(ExchangeProxy):
             return result
 
         df = self.__data[(symbol_name, timeframe)].tail(count).copy()
+        df = df.reset_index()
+        df = df[['open_timestamp', 'open_datetime', 'open', 'high', 'low', 'close', 'volume']]  
 
         result.success = True
         result.result = df

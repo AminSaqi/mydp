@@ -26,7 +26,7 @@ class DataManager():
             self.__exchanges[exchange.value] = exchange_proxy                    
 
 
-    def __get_exchange_proxy(exchange: Exchange, symbols_config: 'list[dict]'):
+    def __get_exchange_proxy(self, exchange: Exchange, symbols_config: 'list[dict]'):
 
         if exchange is Exchange.BinanceSpot:
             return BinanceSpotProxy(symbols_config)
