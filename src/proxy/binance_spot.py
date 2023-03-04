@@ -16,7 +16,8 @@ class BinanceSpotProxy(ExchangeProxy):
          
         self.__data: 'dict[tuple[str, str], pd.DataFrame]' = {}
 
-        self.__symbols_config: 'dict[str, list]' = { conf['symbol']: conf['timeframes'] for conf in symbols_config }
+        self.__symbols_config: 'dict[str, tuple(list, list)]' = \
+            { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
 
         self.__api_client: Spot = Spot()
         self.__socket_client = SpotWebsocketClient()
@@ -33,7 +34,7 @@ class BinanceSpotProxy(ExchangeProxy):
         
         symbols = self.__symbols_config.keys()
         for symbol in symbols:            
-            timeframes = self.__symbols_config[symbol]
+            timeframes = self.__symbols_config[symbol][0]
             for timeframe in timeframes:
                 df = self.__fetch_kline(symbol, timeframe)
                 self.__data[(symbol, timeframe)] = df
@@ -123,26 +124,32 @@ class BinanceSpotProxy(ExchangeProxy):
 #%% Data methods.
 
 
-    def __get_symbol_timeframes(self, symbol_name):
+    def __get_symbol_config(self, symbol_name):
 
         if symbol_name in self.__symbols_config:
             return self.__symbols_config[symbol_name]
+        
         else:
-            return None
+            for key in self.__symbols_config:
+                symbol_config = self.__symbols_config[key]
+                if symbol_name in symbol_config[1]:
+                    return symbol_config
+        
+        return None
 
 
     def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame]:
 
         result = ServiceResult[pd.DataFrame]()
 
-        symbol_timeframes = self.__get_symbol_timeframes(symbol_name)     
+        symbol_config = self.__get_symbol_config(symbol_name)     
 
-        if symbol_timeframes is None:
+        if symbol_config is None:
             result.success = False
             result.message = error.INVALID_SYMBOL
             return result
 
-        if timeframe not in symbol_timeframes:
+        if timeframe not in symbol_config[0]:
             result.success = False
             result.message = error.INVALID_TIMEFRAME
             return result
