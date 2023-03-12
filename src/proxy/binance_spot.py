@@ -7,17 +7,22 @@ from binance.websocket.spot.websocket_client import SpotWebsocketClient
 from binance.error import ClientError
 
 from src.base.interfaces import ExchangeProxy
+from src.base.types import DataEventFuncType
 from src.base.results import ServiceResult
 import src.base.errors as error
 
 class BinanceSpotProxy(ExchangeProxy):
 
-    def __init__(self, symbols_config: 'list[dict]'):
+    def __init__(self, exchange_name: str, symbols_config: 'list[dict]', push_data_event_func: DataEventFuncType):
          
+        self.__exchange_name = exchange_name
+
         self.__data: 'dict[tuple[str, str], pd.DataFrame]' = {}
 
         self.__symbols_config: 'dict[str, tuple(list, list)]' = \
             { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
+
+        self.__push_data_event_func = push_data_event_func
 
         self.__api_client: Spot = Spot()
         self.__socket_client = SpotWebsocketClient()
@@ -110,6 +115,8 @@ class BinanceSpotProxy(ExchangeProxy):
             'close': kline['c'],
             'volume': kline['v']
         }
+
+        self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle)
 
         row = pd.DataFrame.from_records(data=[candle], index='open_datetime')
 

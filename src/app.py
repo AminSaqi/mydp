@@ -4,7 +4,7 @@ sys.path.append('..')
 
 import json
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import Response
 
 from src.service.data_service import DataService
@@ -41,3 +41,8 @@ async def candles(exchange: str, symbol: str, timeframe: str, count: int, respon
         response.status_code = status.HTTP_400_BAD_REQUEST
 
     return api_result
+
+
+@app.websocket("/ws/{exchange}/{symbol}/{timeframe}")
+async def websocket_candles(websocket: WebSocket, exchange: str, symbol: str, timeframe: str):
+    await data_service.connect_websocket(exchange, symbol, timeframe, websocket)   
