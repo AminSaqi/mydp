@@ -10,8 +10,9 @@
                     "WBTC/USDT"
                 ],
                 "timeframes": [
+                    "1d",
                     "4h",
-                    "1d"
+                    "5m"
                 ]
             },
             {
@@ -25,8 +26,9 @@
                     "ETH/USDT"
                 ],
                 "timeframes": [
+                    "1d",
                     "4h",
-                    "1d"
+                    "5m"
                 ]
             },
             {
