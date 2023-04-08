@@ -18,11 +18,8 @@ class DataManager():
         self.__exchanges: 'dict[str, ExchangeProxy]' = {}
 
         for exchange_config in config:
-            exchange_name = exchange_config['exchange']
-            
-            #TODO: check for valid exchange names.
+            exchange_name = exchange_config['exchange']            
             exchange = Exchange(exchange_name)
-
             symbols_config = exchange_config['symbols']
             exchange_proxy = self.__get_exchange_proxy(exchange, symbols_config)
 
@@ -32,7 +29,7 @@ class DataManager():
     def __get_exchange_proxy(self, exchange: Exchange, symbols_config: 'list[dict]'):
 
         if exchange is Exchange.BinanceSpot:
-            return BinanceSpotProxy(symbols_config, self.__push_data_event_func)
+            return BinanceSpotProxy(Exchange.BinanceSpot.value, symbols_config, self.__push_data_event_func)
         elif exchange is Exchange.BinanceFutures:
             raise NotImplementedError()
         elif exchange is Exchange.KucoinSpot:
