@@ -1,5 +1,5 @@
 
-from itertools import repeat
+import asyncio
 
 import pandas as pd
 from binance.spot import Spot
@@ -114,9 +114,7 @@ class BinanceSpotProxy(ExchangeProxy):
             'low': kline['l'],
             'close': kline['c'],
             'volume': kline['v']
-        }
-
-        self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle)
+        } 
 
         row = pd.DataFrame.from_records(data=[candle], index='open_datetime')
 
@@ -126,6 +124,16 @@ class BinanceSpotProxy(ExchangeProxy):
             self.__data[(symbol, timeframe)] = df_new
         else:
             self.__data[(symbol, timeframe)] = row
+
+        candle['open_datetime'] = str(candle['open_datetime'])
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        background_tasks = list()
+        task = loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))   
+        background_tasks.append(task)    
+        task.add_done_callback(background_tasks.remove)
+        loop.run_until_complete(asyncio.wait(background_tasks))
       
            
 #%% Data methods.

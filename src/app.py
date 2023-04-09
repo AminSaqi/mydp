@@ -45,4 +45,12 @@ async def candles(exchange: str, symbol: str, timeframe: str, count: int, respon
 
 @app.websocket("/ws/{exchange}/{symbol}/{timeframe}")
 async def websocket_candles(websocket: WebSocket, exchange: str, symbol: str, timeframe: str):
-    await data_service.connect_websocket(exchange, symbol, timeframe, websocket)   
+
+    await data_service.connect_websocket(exchange, symbol, timeframe, websocket)  
+
+    try:
+        while True:
+            await websocket.receive_text()
+            
+    except WebSocketDisconnect:
+        data_service.disconnect_websocket(exchange, symbol, timeframe, websocket)
