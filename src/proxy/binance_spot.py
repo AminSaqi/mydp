@@ -76,7 +76,7 @@ class BinanceSpotProxy(ExchangeProxy):
 
         symbols = self.__symbols_config.keys()     
         for symbol in symbols:
-            tfs = self.__symbols_config[symbol]
+            tfs = self.__symbols_config[symbol][0]
             symbol_streams = [symbol.lower() + st for st in [stream_postfix.format(tf) for tf in tfs]]        
             streams.extend(symbol_streams)
     

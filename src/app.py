@@ -35,12 +35,12 @@ async def root():
 async def candles(exchange: str, symbol: str, timeframe: str, count: int, response: Response):
     
     data_result = data_service.get_candles(exchange, symbol, timeframe, count)
-    api_result = vars(ApiResult(data_result))
+    api_result = ApiResult(data_result)
 
     if not api_result.success:
         response.status_code = status.HTTP_400_BAD_REQUEST
 
-    return api_result
+    return vars(api_result)
 
 
 @app.websocket("/ws/{exchange}/{symbol}/{timeframe}")
