@@ -12,4 +12,4 @@ WORKDIR /var/projects/mydp/src
 COPY /src .
 
 
-CMD ["python", "app.py"]
+CMD ["uvicorn", "app:app"]
