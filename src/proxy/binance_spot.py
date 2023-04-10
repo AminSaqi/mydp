@@ -139,25 +139,25 @@ class BinanceSpotProxy(ExchangeProxy):
 #%% Data methods.
 
 
-    def __get_symbol_config(self, symbol_name):
+    def __get_symbol_config(self, symbol_name):        
 
         if symbol_name in self.__symbols_config:
-            return self.__symbols_config[symbol_name]
+            return symbol_name, self.__symbols_config[symbol_name]
         
         else:
             for key in self.__symbols_config:
-                symbol_config = self.__symbols_config[key]
+                symbol_config = self.__symbols_config[key]               
                 if symbol_name in symbol_config[1]:
-                    return symbol_config
+                    return key, symbol_config
         
-        return None
+        return None, None
 
 
     def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame]:
 
         result = ServiceResult[pd.DataFrame]()
 
-        symbol_config = self.__get_symbol_config(symbol_name)     
+        config_key, symbol_config = self.__get_symbol_config(symbol_name)     
 
         if symbol_config is None:
             result.success = False
@@ -169,7 +169,8 @@ class BinanceSpotProxy(ExchangeProxy):
             result.message = error.INVALID_TIMEFRAME
             return result
 
-        df = self.__data[(symbol_name, timeframe)].tail(count).copy()
+        key = (config_key, timeframe)
+        df = self.__data[key].tail(count).copy()
         df = df.reset_index()
         df = df[['open_timestamp', 'open_datetime', 'open', 'high', 'low', 'close', 'volume']]  
 
