@@ -5,9 +5,9 @@
             {
                 "symbol": "BTCUSDT",
                 "aliases": [
-                    "WBTC/USDC",
-                    "WBTC/DAI",
-                    "WBTC/USDT"
+                    "WBTC-USDC",
+                    "WBTC-DAI",
+                    "WBTC-USDT"
                 ],
                 "timeframes": [
                     "1d",
@@ -18,12 +18,12 @@
             {
                 "symbol": "ETHUSDT",
                 "aliases": [
-                    "WETH/USDC",
-                    "WETH/DAI",
-                    "WETH/USDT",
-                    "ETH/USDC",
-                    "ETH/DAI",
-                    "ETH/USDT"
+                    "WETH-USDC",
+                    "WETH-DAI",
+                    "WETH-USDT",
+                    "ETH-USDC",
+                    "ETH-DAI",
+                    "ETH-USDT"
                 ],
                 "timeframes": [
                     "1d",
@@ -34,8 +34,8 @@
             {
                 "symbol": "ETHBTC",
                 "aliases": [
-                    "WETH/WBTC",
-                    "ETH/WBTC"
+                    "WETH-WBTC",
+                    "ETH-WBTC"
                 ],
                 "timeframes": [
                     "4h",
