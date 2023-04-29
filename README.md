@@ -168,9 +168,9 @@ Some notes regarding the usage of the `WebSocket`:
 
  ## Project Roadmap
 
- - [ ] Implementing persisteng storages.
+ - [ ] Implementing persistent storages.
  - [ ] Adding the ability to retrieve more than 500 candles (from persistent storages).
- - [ ] Adding the ability edit and reflect configurations without restarting the app.
+ - [ ] Adding the ability to edit and reflect configurations without restarting the app.
  - [ ] Implementing rate limiters.
  - [ ] Implementing JWT authorization and API keys.
  - [ ] Implementing Orderbook data ingestion.
