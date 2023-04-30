@@ -1,6 +1,6 @@
 
 # MyDP: My Data Provider
-A minimal in-memory crypto data feeder to feed trading algorithms/bots. Built with Python and FastAPI.
+A minimal in-memory multi-exchange crypto data provider to feed trading algorithms/bots, built with Python and FastAPI.
 
 You say what data you want (from which exchanges, symbols, timeframes, etc.) through the `config.json` file, and `MyDP` digest them for you. Then your algorithms/bots can consume the data via its `REST API` or `WebSocket`.
 
