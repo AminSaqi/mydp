@@ -134,7 +134,7 @@ The endpoint route is as the following:
 
 So you can subscribe to each kline with something like the following url:
 
-    localhost:8000/ws/binance_spot/BTCUSDT/1d
+    ws://localhost:8000/ws/binance_spot/BTCUSDT/1d
 
 Then, you'll receive real-time updates from the exchange via MyDP. The update messages are in the following format:
 
