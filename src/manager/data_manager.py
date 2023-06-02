@@ -30,10 +30,13 @@ class DataManager():
 
         if exchange is Exchange.BinanceSpot:
             return BinanceSpotProxy(Exchange.BinanceSpot.value, symbols_config, self.__push_data_event_func)
+        
         elif exchange is Exchange.BinanceFutures:
             raise NotImplementedError()
+        
         elif exchange is Exchange.KucoinSpot:
-            raise KucoinSpotProxy(symbols_config)
+            return KucoinSpotProxy(Exchange.KucoinSpot.value, symbols_config, self.__push_data_event_func)
+        
         elif exchange is Exchange.KucoinFutures:
             raise NotImplementedError()
 
