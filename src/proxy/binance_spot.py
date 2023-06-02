@@ -1,5 +1,5 @@
 
-from itertools import repeat
+import asyncio
 
 import pandas as pd
 from binance.spot import Spot
@@ -7,17 +7,22 @@ from binance.websocket.spot.websocket_client import SpotWebsocketClient
 from binance.error import ClientError
 
 from src.base.interfaces import ExchangeProxy
+from src.base.types import DataEventFuncType
 from src.base.results import ServiceResult
 import src.base.errors as error
 
 class BinanceSpotProxy(ExchangeProxy):
 
-    def __init__(self, symbols_config: 'list[dict]'):
+    def __init__(self, exchange_name: str, symbols_config: 'list[dict]', push_data_event_func: DataEventFuncType):
          
+        self.__exchange_name = exchange_name
+
         self.__data: 'dict[tuple[str, str], pd.DataFrame]' = {}
 
         self.__symbols_config: 'dict[str, tuple(list, list)]' = \
             { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
+
+        self.__push_data_event_func = push_data_event_func
 
         self.__api_client: Spot = Spot()
         self.__socket_client = SpotWebsocketClient()
@@ -71,7 +76,7 @@ class BinanceSpotProxy(ExchangeProxy):
 
         symbols = self.__symbols_config.keys()     
         for symbol in symbols:
-            tfs = self.__symbols_config[symbol]
+            tfs = self.__symbols_config[symbol][0]
             symbol_streams = [symbol.lower() + st for st in [stream_postfix.format(tf) for tf in tfs]]        
             streams.extend(symbol_streams)
     
@@ -109,7 +114,7 @@ class BinanceSpotProxy(ExchangeProxy):
             'low': kline['l'],
             'close': kline['c'],
             'volume': kline['v']
-        }
+        } 
 
         row = pd.DataFrame.from_records(data=[candle], index='open_datetime')
 
@@ -119,30 +124,40 @@ class BinanceSpotProxy(ExchangeProxy):
             self.__data[(symbol, timeframe)] = df_new
         else:
             self.__data[(symbol, timeframe)] = row
+
+        candle['open_datetime'] = str(candle['open_datetime'])
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        background_tasks = list()
+        task = loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))   
+        background_tasks.append(task)    
+        task.add_done_callback(background_tasks.remove)
+        loop.run_until_complete(asyncio.wait(background_tasks))
       
            
 #%% Data methods.
 
 
-    def __get_symbol_config(self, symbol_name):
+    def __get_symbol_config(self, symbol_name):        
 
         if symbol_name in self.__symbols_config:
-            return self.__symbols_config[symbol_name]
+            return symbol_name, self.__symbols_config[symbol_name]
         
         else:
             for key in self.__symbols_config:
-                symbol_config = self.__symbols_config[key]
+                symbol_config = self.__symbols_config[key]               
                 if symbol_name in symbol_config[1]:
-                    return symbol_config
+                    return key, symbol_config
         
-        return None
+        return None, None
 
 
     def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame]:
 
         result = ServiceResult[pd.DataFrame]()
 
-        symbol_config = self.__get_symbol_config(symbol_name)     
+        config_key, symbol_config = self.__get_symbol_config(symbol_name)     
 
         if symbol_config is None:
             result.success = False
@@ -154,7 +169,8 @@ class BinanceSpotProxy(ExchangeProxy):
             result.message = error.INVALID_TIMEFRAME
             return result
 
-        df = self.__data[(symbol_name, timeframe)].tail(count).copy()
+        key = (config_key, timeframe)
+        df = self.__data[key].tail(count).copy()
         df = df.reset_index()
         df = df[['open_timestamp', 'open_datetime', 'open', 'high', 'low', 'close', 'volume']]  
 
