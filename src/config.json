@@ -30,7 +30,7 @@
                 "timeframes": [
                     "1day",
                     "4hour",
-                    "5min"
+                    "15min"
                 ]
             }
         ]
