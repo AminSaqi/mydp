@@ -14,32 +14,23 @@
                     "4h",
                     "5m"
                 ]
-            },
+            }
+        ]
+    },
+    {
+        "exchange": "kucoin_spot",
+        "symbols": [
             {
-                "symbol": "ETHUSDT",
+                "symbol": "ETH-USDT",
                 "aliases": [
                     "WETH-USDC",
                     "WETH-DAI",
-                    "WETH-USDT",
-                    "ETH-USDC",
-                    "ETH-DAI",
-                    "ETH-USDT"
+                    "WETH-USDT"
                 ],
                 "timeframes": [
-                    "1d",
-                    "4h",
-                    "5m"
-                ]
-            },
-            {
-                "symbol": "ETHBTC",
-                "aliases": [
-                    "WETH-WBTC",
-                    "ETH-WBTC"
-                ],
-                "timeframes": [
-                    "4h",
-                    "1d"
+                    "1day",
+                    "4hour",
+                    "5min"
                 ]
             }
         ]
