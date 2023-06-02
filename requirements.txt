@@ -2,3 +2,4 @@ numpy==1.21.5
 pandas==1.4.2
 binance-connector==1.16.0
 binance-futures-connector==3.2.0
+kucoin-python==1.0.11

@@ -3,7 +3,7 @@ import pandas as pd
 
 from src.base.enums import Exchange
 from src.base.interfaces import ExchangeProxy
-from src.proxy import BinanceSpotProxy
+from src.proxy import BinanceSpotProxy, KucoinSpotProxy
 from src.base.results import ServiceResult
 import src.base.errors as error
 
@@ -33,7 +33,7 @@ class DataManager():
         elif exchange is Exchange.BinanceFutures:
             raise NotImplementedError()
         elif exchange is Exchange.KucoinSpot:
-            raise NotImplementedError()
+            raise KucoinSpotProxy(symbols_config)
         elif exchange is Exchange.KucoinFutures:
             raise NotImplementedError()
 
