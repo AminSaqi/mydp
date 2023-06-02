@@ -22,21 +22,23 @@ Here is a small example of the `config.json` file:
                         "4h",
                         "5m"
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "exchange": "kucoin_spot",
+            "symbols": [
                 {
-                    "symbol": "ETHUSDT",
+                    "symbol": "ETH-USDT",
                     "aliases": [
                         "WETH-USDC",
                         "WETH-DAI",
-                        "WETH-USDT",
-                        "ETH-USDC",
-                        "ETH-DAI",
-                        "ETH-USDT"
+                        "WETH-USDT"
                     ],
                     "timeframes": [
-                        "1d",
-                        "4h",
-                        "5m"
+                        "1day",
+                        "4hour",
+                        "5min"
                     ]
                 }
             ]
@@ -161,7 +163,7 @@ Some notes regarding the usage of the `WebSocket`:
 ## Implemented Exchange proxies:
  - [x] Binance (Spot)
  - [ ] Binance (Futures)
- - [ ] Kucoin (Spot)
+ - [x] Kucoin (Spot)
  - [ ] Kucoin (Futures)
  - [ ] ...
 
