@@ -7,7 +7,8 @@ nest_asyncio.apply()
 
 import pandas as pd
 
-
+from src.client.coinex.spot_api_client import CoinexSpotApiClient
+from src.client.coinex.spot_socket_client import CoinexSpotSocketClient
 from src.base.types import DataEventFuncType
 from src.base.interfaces import ExchangeProxy
 from src.base.results import ServiceResult
@@ -23,19 +24,35 @@ class CoinexSpotProxy(ExchangeProxy):
 
         self.__symbols_config: 'dict[str, tuple(list, list)]' = \
             { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
+        
+        mappings = self.__create_streams_and_symbols_mappings()
+        self.__stream_id_to_symbol: 'dict[int, str]' = mappings[0]
+        self.__symbol_to_stream_id: 'dict[str, int]' = mappings[1]            
 
         self.__push_data_event_func = push_data_event_func
 
-        self.__api_client: Market = Market(url="https://api.kucoin.com")
-        self.__socket_client: KucoinWsClient = None              
+        self.__api_client: CoinexSpotApiClient = CoinexSpotApiClient()
+        self.__socket_client: CoinexSpotSocketClient = CoinexSpotSocketClient()              
 
         self.__prepare_historical_data()
-
-        #new_loop = asyncio.new_event_loop()
+       
         loop = asyncio.get_event_loop()
-        loop.create_task(self.__connect_to_data_streams())
-        #new_loop.run_forever()
+        loop.create_task(self.__connect_to_data_streams())      
          
+    def __create_streams_and_symbols_mappings(self):
+
+        stream_id_to_symbol = {}
+        symbol_to_stream_id = {}
+
+        id = 2
+
+        for symbol in self.__symbols_config:            
+            stream_id_to_symbol[id] = symbol
+            symbol_to_stream_id[symbol] = id
+
+            id += 1
+
+        return stream_id_to_symbol, symbol_to_stream_id
 
 
 #%% Historical data setup.
@@ -53,7 +70,7 @@ class CoinexSpotProxy(ExchangeProxy):
         
     def __fetch_kline(self, symbol, timeframe):
         
-        klines = self.__api_client.get_kline(symbol=symbol, kline_type=timeframe)
+        klines = self.__api_client.get_klines(symbol=symbol, timeframe=timeframe)
         df = pd.DataFrame(klines)
         df.drop(df.columns[[6]], axis=1, inplace=True)  # Remove unnecessary columns
         df = self.__parse_dataframe(df)
@@ -64,10 +81,17 @@ class CoinexSpotProxy(ExchangeProxy):
     def __parse_dataframe(self, df_klines):   
         
         df = df_klines.copy()
-        df.columns = ['open_timestamp', 'open', 'close', 'high', 'low', 'volume']
-        
+        df.columns = ['open_timestamp', 'open', 'close', 'high', 'low', 'volume']                    
+
         df['open_datetime'] = pd.to_datetime(df['open_timestamp'], unit='s')
-        df = df.set_index('open_datetime')   
+        df = df.set_index('open_datetime')  
+
+        df['open'] = df['open'].astype('float')
+        df['high'] = df['high'].astype('float')
+        df['low'] = df['low'].astype('float')
+        df['close'] = df['close'].astype('float')
+        df['volume'] = df['volume'].astype('float')
+        df['quote_volume'] = df['quote_volume'].astype('float')
 
         df = df[['open_timestamp', 'open', 'high', 'low', 'close', 'volume']]     
         
@@ -77,62 +101,55 @@ class CoinexSpotProxy(ExchangeProxy):
 #%% Socket setup.
 
 
-    async def __connect_to_data_streams(self):
-
-        # loop = asyncio.new_event_loop()
-        # asyncio.set_event_loop(loop) 
-        # background_tasks = list()
-        # task = loop.create_task(self.__initialize_socket_client())   
-        # background_tasks.append(task)    
-        # task.add_done_callback(background_tasks.remove)  
-        # loop.run_until_complete(asyncio.wait(background_tasks))   
+    async def __connect_to_data_streams(self):        
         
         await self.__initialize_socket_client()     
 
         streams = []
-        stream_postfix = '/market/candles:{}_{}'
-
+        
         symbols = self.__symbols_config.keys()     
         for symbol in symbols:
-            tupple_tfs_aliases = self.__symbols_config[symbol]
-            symbol_streams = [stream_postfix.format(symbol, tf) for tf in tupple_tfs_aliases[0]]        
-            streams.extend(symbol_streams)
-    
-        await self.__subscribe_to_topics(streams)
 
-        # loop = asyncio.new_event_loop()
-        # asyncio.set_event_loop(loop)
-        # background_tasks = list()
-        # task = loop.create_task(self.__subscribe_to_topics(streams))   
-        # background_tasks.append(task)    
-        # task.add_done_callback(background_tasks.remove)  
-        # loop.run_until_complete(asyncio.wait(background_tasks))        
+            tupple_tfs_aliases = self.__symbols_config[symbol]
+
+            for timeframe in tupple_tfs_aliases[0]:
+
+                stream = {
+                    "symbol": symbol,
+                    "fromTimestamp": 0,
+                    "intervalSeconds": self.__get_interval_seconds_from_timeframe(timeframe),
+                    "callback": self.__handle_socket_message,
+                    "id": self.__symbol_to_stream_id[symbol]
+                }
+                           
+                streams.append(stream)
+    
+        await self.__subscribe_to_topics(streams)       
 
 
     async def __handle_socket_message(self, msg):    
         
-        """https://docs.kucoin.com/#klines"""
+        """https://viabtc.github.io/coinex_api_en_doc/spot/#docsspot004_websocket005_kline_query"""
                 
-        if ('topic' in msg) and ('data' in msg):            
+        if ('result' in msg) and ('error' in msg) and (msg['error' is None]):            
             self.__handle_data_event(msg)
 
-        elif 'e' in msg:            
-
-            if msg['e'] == 'kline': 
-                self.__handle_data_event(msg)
-
-            elif msg['e'] == 'error':
+        else:            
+            if msg['error']: 
+                #TODO: log error
+                print(msg)
+            else:
                 #TODO: log error
                 print(msg)
 
 
     def __handle_data_event(self, msg): 
-
-        data = msg['data']  
-
-        symbol = data['symbol']        
-        kline = data['candles']       
-        timeframe = msg['topic'].split("_",1)[1]
+         
+        id = msg['id']  
+        symbol_timeframe = self.__stream_id_to_symbol[id].split("_",1)
+        symbol = symbol_timeframe[0]      
+        timeframe = symbol_timeframe[1]
+        kline = msg['result'][-1] 
         
         candle = {
             'open_timestamp': kline[0],
@@ -155,28 +172,50 @@ class CoinexSpotProxy(ExchangeProxy):
 
         candle['open_datetime'] = str(candle['open_datetime'])
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        background_tasks = list()
-        task = loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))   
-        background_tasks.append(task)    
-        task.add_done_callback(background_tasks.remove)
-        loop.run_until_complete(asyncio.wait(background_tasks))  
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # background_tasks = list()
+        # task = loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))   
+        # background_tasks.append(task)    
+        # task.add_done_callback(background_tasks.remove)
+        # loop.run_until_complete(asyncio.wait(background_tasks))  
+
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))
 
 
     async def __initialize_socket_client(self):
-      self.__socket_client = await KucoinWsClient.create(None, WsToken(), self.__handle_socket_message, private=False)
+        await self.__socket_client.init()        
            
 
-    async def __subscribe_to_topics(self, list_topics: 'list[str]'):
+    async def __subscribe_to_topics(self, list_topics: 'list[dict]'):
         
         for topic in list_topics:           
-            await self.__socket_client.subscribe(topic)             
+            await self.__socket_client.kline_query(**topic)             
         
-        while True:
-            await asyncio.sleep(1)
-            
+        # while True:
+        #     await asyncio.sleep(1)
 
+
+    def __get_interval_seconds_from_timeframe(self, timeframe):
+
+        timeframe_to_interval = {
+            '1week':    7 * 24 * 60 * 60,
+            '3day':     3 * 24 * 60 * 60,
+            '1day':     1 * 24 * 60 * 60,
+            '12hour':       12 * 60 * 60,
+            '6hour':        6  * 60 * 60,
+            '4hour':        4  * 60 * 60,
+            '2hour':        2  * 60 * 60,
+            '1hour':        1  * 60 * 60,
+            '30min':             30 * 60,
+            '15min':             15 * 60,
+            '5min':              5  * 60,
+            '1min':              1  * 60,
+        }
+
+        return timeframe_to_interval[timeframe]
+            
 
 #%% Data methods.
 
