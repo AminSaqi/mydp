@@ -34,5 +34,19 @@
                 ]
             }
         ]
+    },
+    {
+        "exchange": "coinex_spot",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [
+                    "WBTC-USDC"
+                ],
+                "timeframes": [
+                    "1day"
+                ]
+            }
+        ]
     }
 ]

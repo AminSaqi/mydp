@@ -42,7 +42,8 @@ Here is a small example of the `config.json` file:
                     ]
                 }
             ]
-        }
+        },
+        ... 
     ]
 
 
@@ -165,6 +166,8 @@ Some notes regarding the usage of the `WebSocket`:
  - [ ] Binance (Futures)
  - [x] Kucoin (Spot)
  - [ ] Kucoin (Futures)
+ - [x] Coinex (Spot)
+ - [ ] Coinex (Futures)
  - [ ] ...
 
 
