@@ -7,4 +7,6 @@ class Exchange(Enum):
     BinanceFutures = 'binance_futures'
     KucoinSpot = 'kucoin_spot'
     KucoinFutures = 'kucoin_futures'
+    CoinexSpot = 'coinex_spot'
+    CoinexFutures = 'coinex_futures'
 

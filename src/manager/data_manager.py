@@ -39,6 +39,12 @@ class DataManager():
         
         elif exchange is Exchange.KucoinFutures:
             raise NotImplementedError()
+        
+        elif exchange is Exchange.CoinexSpot:
+            return KucoinSpotProxy(Exchange.CoinexSpot.value, symbols_config, self.__push_data_event_func)
+        
+        elif exchange is Exchange.CoinexFutures:
+            raise NotImplementedError()
 
 
     def __get_exchange(self, exchange_name: str):
