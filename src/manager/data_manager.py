@@ -4,7 +4,7 @@ import pandas as pd
 from src.base.enums import Exchange
 from src.base.interfaces import ExchangeProxy
 from src.base.types import DataEventFuncType
-from src.proxy import BinanceSpotProxy, KucoinSpotProxy
+from src.proxy import BinanceSpotProxy, KucoinSpotProxy, CoinexSpotProxy
 from src.base.results import ServiceResult
 import src.base.errors as error
 
@@ -41,7 +41,7 @@ class DataManager():
             raise NotImplementedError()
         
         elif exchange is Exchange.CoinexSpot:
-            return KucoinSpotProxy(Exchange.CoinexSpot.value, symbols_config, self.__push_data_event_func)
+            return CoinexSpotProxy(Exchange.CoinexSpot.value, symbols_config, self.__push_data_event_func)
         
         elif exchange is Exchange.CoinexFutures:
             raise NotImplementedError()
