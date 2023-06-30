@@ -1,6 +1,6 @@
 
 import asyncio
-import aiohttp
+import time
 
 import nest_asyncio
 nest_asyncio.apply()
@@ -26,8 +26,8 @@ class CoinexSpotProxy(ExchangeProxy):
             { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
         
         mappings = self.__create_streams_and_symbols_mappings()
-        self.__stream_id_to_symbol: 'dict[int, str]' = mappings[0]
-        self.__symbol_to_stream_id: 'dict[str, int]' = mappings[1]            
+        self.__stream_id_to_symbol: 'dict[int, tuple[str, str]]' = mappings[0]
+        self.__symbol_to_stream_id: 'dict[tuple[str, str], int]' = mappings[1]            
 
         self.__push_data_event_func = push_data_event_func
 
@@ -46,11 +46,14 @@ class CoinexSpotProxy(ExchangeProxy):
 
         id = 2
 
-        for symbol in self.__symbols_config:            
-            stream_id_to_symbol[id] = symbol
-            symbol_to_stream_id[symbol] = id
+        for symbol in self.__symbols_config:  
 
-            id += 1
+            timeframes = self.__symbols_config[symbol][0]
+            for timeframe in timeframes:
+                stream_id_to_symbol[id] = (symbol, timeframe)
+                symbol_to_stream_id[(symbol, timeframe)] = id
+
+                id += 1
 
         return stream_id_to_symbol, symbol_to_stream_id
 
@@ -116,10 +119,10 @@ class CoinexSpotProxy(ExchangeProxy):
 
                 stream = {
                     "symbol": symbol,
-                    "fromTimestamp": 0,
+                    "fromTimestamp": time.time_ns() // 1_000_000_000,
                     "intervalSeconds": self.__get_interval_seconds_from_timeframe(timeframe),
                     "callback": self.__handle_socket_message,
-                    "id": self.__symbol_to_stream_id[symbol]
+                    "id": self.__symbol_to_stream_id[(symbol,timeframe)]
                 }
                            
                 streams.append(stream)
@@ -146,7 +149,7 @@ class CoinexSpotProxy(ExchangeProxy):
     def __handle_data_event(self, msg): 
          
         id = msg['id']  
-        symbol_timeframe = self.__stream_id_to_symbol[id].split("_",1)
+        symbol_timeframe = self.__stream_id_to_symbol[id]
         symbol = symbol_timeframe[0]      
         timeframe = symbol_timeframe[1]
         kline = msg['result'][-1] 
