@@ -162,13 +162,17 @@ Some notes regarding the usage of the `WebSocket`:
  
 
 ## Implemented Exchange proxies:
- - [x] Binance (Spot)
- - [ ] Binance (Futures)
- - [x] Kucoin (Spot)
- - [ ] Kucoin (Futures)
- - [x] Coinex (Spot)
- - [ ] Coinex (Futures)
- - [ ] ...
+
+| Exchange    | Spot | Futures |
+| ----------- | :-----------------: | :----------------------: |
+| Binance     | :white_check_mark:  |         |
+| Bingx       |      |         |
+| ByBit       |      |         |
+| Coinex      | :white_check_mark:  | :white_check_mark:       |
+| Kucoin      | :white_check_mark:  |         |
+| Mexc        |      |         |
+| OKX         |      |         |
+
 
 
  ## Project Roadmap

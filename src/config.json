@@ -18,6 +18,32 @@
         ]
     },
     {
+        "exchange": "coinex_spot",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [
+                    "WBTC-USDC"
+                ],
+                "timeframes": [
+                    "1day"
+                ]
+            }
+        ]
+    },
+    {
+        "exchange": "coinex_futures",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [],
+                "timeframes": [
+                    "1day"
+                ]
+            }
+        ]
+    },
+    {
         "exchange": "kucoin_spot",
         "symbols": [
             {
@@ -31,20 +57,6 @@
                     "1day",
                     "4hour",
                     "15min"
-                ]
-            }
-        ]
-    },
-    {
-        "exchange": "coinex_spot",
-        "symbols": [
-            {
-                "symbol": "BTCUSDT",
-                "aliases": [
-                    "WBTC-USDC"
-                ],
-                "timeframes": [
-                    "1day"
                 ]
             }
         ]
