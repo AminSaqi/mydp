@@ -163,8 +163,11 @@ class MexcSpotProxy(ExchangeProxy):
           
     async def __subscribe_to_topics(self, list_topics: 'list[dict]'):
         
-        for topic in list_topics:           
-            await self.__socket_client.kline_subscribe(**topic)             
+        loop = asyncio.get_event_loop()        
+         
+        for topic in list_topics:  
+            loop.create_task(self.__socket_client.kline_subscribe(**topic))          
+            # await self.__socket_client.kline_subscribe(**topic)             
 
 
     def __get_socket_interval_from_timeframe(self, timeframe):

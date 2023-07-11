@@ -12,7 +12,7 @@ class MexcSpotApiClient:
 
     async def get_klines(self, symbol: str, timeframe: str, count=500):    
 
-        connector = aiohttp.TCPConnector(limit=None)
+        connector = aiohttp.TCPConnector(limit=None, verify_ssl=False)
         async with aiohttp.ClientSession(connector=connector) as session:
 
             try:
