@@ -10,13 +10,13 @@ class MexcFuturesApiClient:
         self.KLINES_ENDPOINT = self.BASE_URL + '/api/v1/contract/kline'
 
 
-    async def get_klines(self, symbol: str, timeframe: str, start: int):    
+    async def get_klines(self, symbol: str, timeframe: str, count: int):    
 
         connector = aiohttp.TCPConnector(limit=None)
         async with aiohttp.ClientSession(connector=connector) as session:
 
             try:
-                url = '{}/{}?interval={}&start={}'.format(self.KLINES_ENDPOINT, symbol, timeframe, start)
+                url = '{}/{}?interval={}&limit={}'.format(self.KLINES_ENDPOINT, symbol, timeframe, count)
                 async with session.get(url) as resp:
                     r_json = await resp.json()                          
                     return r_json['data']                    

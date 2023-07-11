@@ -30,7 +30,7 @@ class MexcSpotSocketClient:
                 await self.__websocket.send(payload)                                                          
 
             except Exception as ex:
-                print('exception from mexc_futures_socket_client.ping: ', ex)                  
+                print('exception from mexc_spot_socket_client.ping: ', ex)                  
 
             await asyncio.sleep(30)
 
@@ -47,14 +47,18 @@ class MexcSpotSocketClient:
 
         payload = json.dumps(data)
         
-        while True:
-            try:
-                await self.__websocket.send(payload)
-                response = await self.__websocket.recv()  
-                dict_r = json.loads(response)              
-                callback(dict_r)                
+        try:
+            await self.__websocket.send(payload)
+            response = await self.__websocket.recv()  
+        
+            while True:
+                try:                    
+                    response = await self.__websocket.recv()  
+                    dict_r = json.loads(response)              
+                    callback(dict_r)                
 
-            except Exception as ex:
-                print('exception from mexc_futures_socket_client.kline_subscribe: ', ex)                  
+                except Exception as ex:
+                    print('exception from mexc_spot_socket_client.kline_subscribe: ', ex)                                  
 
-            await asyncio.sleep(2)
+        except Exception as ex_sub:
+            print('exception from mexc_spot_socket_client.kline_subscribe: ', ex_sub) 

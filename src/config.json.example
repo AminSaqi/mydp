@@ -1,6 +1,24 @@
 [
     {
-        "exchange": "mexc_spot",
+        "exchange": "binance_spot",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [
+                    "WBTC-USDC",
+                    "WBTC-DAI",
+                    "WBTC-USDT"
+                ],
+                "timeframes": [
+                    "1d",
+                    "4h",
+                    "5m"
+                ]
+            }
+        ]
+    },
+    {
+        "exchange": "coinex_spot",
         "symbols": [
             {
                 "symbol": "BTCUSDT",
@@ -9,6 +27,64 @@
                 ],
                 "timeframes": [
                     "1day"
+                ]
+            }
+        ]
+    },
+    {
+        "exchange": "coinex_futures",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [],
+                "timeframes": [
+                    "1day"
+                ]
+            }
+        ]
+    },
+    {
+        "exchange": "kucoin_spot",
+        "symbols": [
+            {
+                "symbol": "ETH-USDT",
+                "aliases": [
+                    "WETH-USDC",
+                    "WETH-DAI",
+                    "WETH-USDT"
+                ],
+                "timeframes": [
+                    "1day",
+                    "4hour",
+                    "15min"
+                ]
+            }
+        ]
+    },
+    {
+        "exchange": "mexc_spot",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [
+                    "WBTC-USDC"
+                ],
+                "timeframes": [
+                    "1d"
+                ]
+            }
+        ]
+    },
+    {
+        "exchange": "mexc_futures",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [
+                    "WBTC-USDC"
+                ],
+                "timeframes": [
+                    "Day1"
                 ]
             }
         ]

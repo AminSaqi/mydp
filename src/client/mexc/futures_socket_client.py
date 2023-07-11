@@ -9,31 +9,25 @@ class MexcFuturesSocketClient:
 
     def __init__(self):
         self.BASE_URL = 'wss://contract.mexc.com/ws'
-        self.SERVER_PING_METHOD = 'server.ping'
-        self.KLINES_QUERY_METHOD = 'kline.query'        
+        self.SERVER_PING_METHOD = 'ping'
+        self.KLINE_METHOD = 'sub.kline'        
 
     async def init(self):
-        self.__websocket = await websockets.connect(self.BASE_URL, 
-                                                    compression='deflate',
+        self.__websocket = await websockets.connect(self.BASE_URL,
                                                     ping_interval=None)
 
 
     async def ping(self):
         
         data = {
-            "method": self.SERVER_PING_METHOD,
-            "params": [],
-            "id": 1
+            "method": self.SERVER_PING_METHOD
         }
 
         payload = json.dumps(data)
 
         while True:
             try:
-                await self.__websocket.send(payload)
-                # response = await self.__websocket.recv()  
-                # dict_r = json.loads(response)
-                # print(dict_r)                                              
+                await self.__websocket.send(payload)                                                          
 
             except Exception as ex:
                 print('exception from mexc_futures_socket_client.ping: ', ex)                  
@@ -41,29 +35,30 @@ class MexcFuturesSocketClient:
             await asyncio.sleep(30)
 
 
-    async def kline_query(self, symbol: str, fromTimestamp: int, intervalSeconds: int, callback, id):            
+    async def kline_subscribe(self, symbol: str, interval: str, callback):            
 
         data = {
-            "method":"kline.query",
-            "params":[
-                symbol,
-                fromTimestamp,
-                fromTimestamp + 1_000_000_000,
-                intervalSeconds
-            ],
-            "id": id
+            "method": self.KLINE_METHOD,
+            "params":{
+                "symbol": symbol,
+                "interval": interval
+            }         
         }
 
         payload = json.dumps(data)
         
-        while True:
-            try:
-                await self.__websocket.send(payload)
-                response = await self.__websocket.recv()  
-                dict_r = json.loads(response)              
-                callback(dict_r)                
+        try:
+            await self.__websocket.send(payload)
+            response = await self.__websocket.recv()  
+        
+            while True:
+                try:                    
+                    response = await self.__websocket.recv()  
+                    dict_r = json.loads(response)              
+                    callback(dict_r)                
 
-            except Exception as ex:
-                print('exception from coinex_futures_socket_client.get_klines: ', ex)                  
+                except Exception as ex:
+                    print('exception from mexc_futures_socket_client.kline_subscribe: ', ex)                                  
 
-            await asyncio.sleep(2)
+        except Exception as ex_sub:
+            print('exception from mexc_futures_socket_client.kline_subscribe: ', ex_sub) 

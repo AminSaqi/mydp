@@ -7,3 +7,4 @@ from .coinex_futures import CoinexFuturesProxy
 from .kucoin_spot import KucoinSpotProxy
 
 from .mexc_spot import MexcSpotProxy
+from .mexc_futures import MexcFuturesProxy

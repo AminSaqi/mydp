@@ -12,7 +12,8 @@ from src.proxy import (
 
     KucoinSpotProxy, 
 
-    MexcSpotProxy 
+    MexcSpotProxy,
+    MexcFuturesProxy 
 )
 from src.base.results import ServiceResult
 import src.base.errors as error
@@ -60,7 +61,7 @@ class DataManager():
         elif exchange is Exchange.MexcSpot:
             return MexcSpotProxy(Exchange.MexcSpot.value, symbols_config, self.__push_data_event_func)        
         elif exchange is Exchange.MexcFutures:
-            raise NotImplementedError()
+            return MexcFuturesProxy(Exchange.MexcFutures.value, symbols_config, self.__push_data_event_func)
 
 
     def __get_exchange(self, exchange_name: str):
