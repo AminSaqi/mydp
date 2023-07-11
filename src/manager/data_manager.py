@@ -6,9 +6,14 @@ from src.base.interfaces import ExchangeProxy
 from src.base.types import DataEventFuncType
 from src.proxy import ( 
     BinanceSpotProxy, 
-    KucoinSpotProxy, 
+
     CoinexSpotProxy,
-    CoinexFuturesProxy )
+    CoinexFuturesProxy,
+
+    KucoinSpotProxy, 
+
+    MexcSpotProxy 
+)
 from src.base.results import ServiceResult
 import src.base.errors as error
 
@@ -37,15 +42,25 @@ class DataManager():
         elif exchange is Exchange.BinanceFutures:
             raise NotImplementedError()
         
-        elif exchange is Exchange.KucoinSpot:
-            return KucoinSpotProxy(Exchange.KucoinSpot.value, symbols_config, self.__push_data_event_func)        
-        elif exchange is Exchange.KucoinFutures:
+        elif exchange is Exchange.BingxSpot:
+            return NotImplementedError()
+        elif exchange is Exchange.BingxFutures:
             raise NotImplementedError()
         
         elif exchange is Exchange.CoinexSpot:
             return CoinexSpotProxy(Exchange.CoinexSpot.value, symbols_config, self.__push_data_event_func)        
         elif exchange is Exchange.CoinexFutures:
             return CoinexFuturesProxy(Exchange.CoinexFutures.value, symbols_config, self.__push_data_event_func)
+        
+        elif exchange is Exchange.KucoinSpot:
+            return KucoinSpotProxy(Exchange.KucoinSpot.value, symbols_config, self.__push_data_event_func)        
+        elif exchange is Exchange.KucoinFutures:
+            raise NotImplementedError()
+        
+        elif exchange is Exchange.MexcSpot:
+            return MexcSpotProxy(Exchange.MexcSpot.value, symbols_config, self.__push_data_event_func)        
+        elif exchange is Exchange.MexcFutures:
+            raise NotImplementedError()
 
 
     def __get_exchange(self, exchange_name: str):
