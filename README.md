@@ -47,6 +47,19 @@ Here is a small example of the `config.json` file:
     ]
 
 
+## Implemented Exchange proxies:
+
+| Exchange    | Spot | Futures |
+| ----------- | :-----------------: | :----------------------: |
+| Binance     | :white_check_mark:  |         |
+| Bingx       |      |         |
+| ByBit       |      |         |
+| Coinex      | :white_check_mark:  | :white_check_mark:       |
+| Kucoin      | :white_check_mark:  |         |
+| Mexc        | :white_check_mark:  |         |
+| OKX         |      |         |
+
+
 ## Features
 
 - Container based: Simply create a Dockerfile and run it.
@@ -160,20 +173,6 @@ Some notes regarding the usage of the `WebSocket`:
  - Right now, it lacks some important features like authorization, rate limiting, etc. I'll try to implement them in the future.
  - It's under semi-active(!) development and it may have several breaking changes, or changes in the project roadmap.
  
-
-## Implemented Exchange proxies:
-
-| Exchange    | Spot | Futures |
-| ----------- | :-----------------: | :----------------------: |
-| Binance     | :white_check_mark:  |         |
-| Bingx       |      |         |
-| ByBit       |      |         |
-| Coinex      | :white_check_mark:  | :white_check_mark:       |
-| Kucoin      | :white_check_mark:  |         |
-| Mexc        |      |         |
-| OKX         |      |         |
-
-
 
  ## Project Roadmap
 
