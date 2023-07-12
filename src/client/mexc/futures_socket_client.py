@@ -1,6 +1,7 @@
 
 import json
 import asyncio
+import ssl
 
 import websockets
 
@@ -13,8 +14,14 @@ class MexcFuturesSocketClient:
         self.KLINE_METHOD = 'sub.kline'        
 
     async def init(self):
+
+        ssl_context = ssl.SSLContext()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
         self.__websocket = await websockets.connect(self.BASE_URL,
-                                                    ping_interval=None)
+                                                    ping_interval=None,
+                                                    ssl=ssl_context)
 
 
     async def ping(self):
@@ -39,7 +46,7 @@ class MexcFuturesSocketClient:
 
         data = {
             "method": self.KLINE_METHOD,
-            "params":{
+            "param":{
                 "symbol": symbol,
                 "interval": interval
             }         

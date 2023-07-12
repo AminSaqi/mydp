@@ -1,26 +1,10 @@
 [
     {
-        "exchange": "mexc_spot",
-        "symbols": [
-            {
-                "symbol": "BTCUSDT",
-                "aliases": [
-                    "WBTC-USDC"
-                ],
-                "timeframes": [
-                    "1d"
-                ]
-            }
-        ]
-    },
-    {
         "exchange": "mexc_futures",
         "symbols": [
             {
-                "symbol": "BTCUSDT",
-                "aliases": [
-                    "WBTC-USDC"
-                ],
+                "symbol": "BTC_USDT",
+                "aliases": [],
                 "timeframes": [
                     "Day1"
                 ]
