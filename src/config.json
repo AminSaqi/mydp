@@ -1,12 +1,12 @@
 [
     {
-        "exchange": "mexc_futures",
+        "exchange": "bingx_futures",
         "symbols": [
             {
-                "symbol": "BTC_USDT",
+                "symbol": "BTC-USDT",
                 "aliases": [],
                 "timeframes": [
-                    "Day1"
+                    "1d"
                 ]
             }
         ]
