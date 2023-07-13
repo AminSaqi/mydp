@@ -49,15 +49,15 @@ Here is a small example of the `config.json` file:
 
 ## Implemented Exchange proxies:
 
-| Exchange    | Spot | Futures |
-| ----------- | :----------------: | :----------------: |
-| Binance     | :white_check_mark: |  |
-| Bingx       |  |  |
-| ByBit       |  |  |
-| Coinex      | :white_check_mark: | :white_check_mark: |
-| Kucoin      | :white_check_mark: |  |
-| Mexc        | :white_check_mark: | :white_check_mark: |
-| OKX         |  |  |
+| Exchange    | Spot | Futures | Notes |
+| ----------- | :----------------: | :----------------: | :--------------- |
+| Binance     | :white_check_mark: | :white_check_mark: | USD-M and COIN-M |
+| Bingx       |  |  |  |
+| ByBit       |  |  |  |
+| Coinex      | :white_check_mark: | :white_check_mark: |  |
+| Kucoin      | :white_check_mark: |  |  |
+| Mexc        | :white_check_mark: | :white_check_mark: |  |
+| OKX         |  |  |  |
 
 
 ## Features
