@@ -18,6 +18,46 @@
         ]
     },
     {
+        "exchange": "binance_futures_um",
+        "symbols": [
+            {
+                "symbol": "BTCUSDT",
+                "aliases": [],
+                "timeframes": ["15m"]
+            }
+        ]
+    },
+    {
+        "exchange": "binance_futures_cm",
+        "symbols": [
+            {
+                "symbol": "ETHBTC",
+                "aliases": [],
+                "timeframes": ["15m"]
+            }
+        ]
+    },
+    {
+        "exchange": "binance_futures_cm",
+        "symbols": [
+            {
+                "symbol": "ETHBTC",
+                "aliases": [],
+                "timeframes": ["15m"]
+            }
+        ]
+    },
+    {
+        "exchange": "bingx_futures",
+        "symbols": [
+            {
+                "symbol": "BTC-USDT",
+                "aliases": [],
+                "timeframes": ["1d"]
+            }
+        ]
+    },
+    {
         "exchange": "coinex_spot",
         "symbols": [
             {
@@ -79,7 +119,7 @@
         "exchange": "mexc_futures",
         "symbols": [
             {
-                "symbol": "BTCUSDT",
+                "symbol": "BTC_USDT",
                 "aliases": [
                     "WBTC-USDC"
                 ],
