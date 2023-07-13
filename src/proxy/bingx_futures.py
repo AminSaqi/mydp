@@ -7,14 +7,14 @@ nest_asyncio.apply()
 
 import pandas as pd
 
-from src.client.mexc.futures_api_client import MexcFuturesApiClient
-from src.client.mexc.futures_socket_client import MexcFuturesSocketClient
+from src.client.bingx.futures_api_client import BingxFuturesApiClient
+from src.client.bingx.futures_socket_client import BingxFuturesSocketClient
 from src.base.types import DataEventFuncType
 from src.base.interfaces import ExchangeProxy
 from src.base.results import ServiceResult
 import src.base.errors as error
 
-class MexcFuturesProxy(ExchangeProxy):
+class BingxFuturesProxy(ExchangeProxy):
 
     def __init__(self, exchange_name: str, symbols_config: 'list[dict]', push_data_event_func: DataEventFuncType):
          
@@ -23,15 +23,38 @@ class MexcFuturesProxy(ExchangeProxy):
         self.__data: 'dict[tuple[str, str], pd.DataFrame]' = {}
 
         self.__symbols_config: 'dict[str, tuple(list, list)]' = \
-            { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }                      
+            { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
+        
+        mappings = self.__create_streams_and_symbols_mappings()
+        self.__stream_id_to_symbol: 'dict[int, tuple[str, str]]' = mappings[0]
+        self.__symbol_to_stream_id: 'dict[tuple[str, str], int]' = mappings[1]            
 
         self.__push_data_event_func = push_data_event_func
 
-        self.__api_client: MexcFuturesApiClient = MexcFuturesApiClient()
-        self.__socket_client: MexcFuturesSocketClient = MexcFuturesSocketClient()                      
+        self.__api_client: BingxFuturesApiClient = BingxFuturesApiClient()
+        self.__socket_client: BingxFuturesSocketClient = BingxFuturesSocketClient()                      
                
         loop = asyncio.get_event_loop()        
-        loop.create_task(self.__prepare_historical_data())                 
+        loop.create_task(self.__prepare_historical_data())        
+
+         
+    def __create_streams_and_symbols_mappings(self):
+
+        stream_id_to_symbol = {}
+        symbol_to_stream_id = {}
+
+        id = 2
+
+        for symbol in self.__symbols_config:  
+
+            timeframes = self.__symbols_config[symbol][0]
+            for timeframe in timeframes:
+                stream_id_to_symbol[id] = (symbol, timeframe)
+                symbol_to_stream_id[(symbol, timeframe)] = id
+
+                id += 1
+
+        return stream_id_to_symbol, symbol_to_stream_id
 
 
 #%% Historical data setup.
@@ -53,7 +76,7 @@ class MexcFuturesProxy(ExchangeProxy):
         
         klines = await self.__api_client.get_klines(symbol=symbol, timeframe=timeframe)      
         df = pd.DataFrame(klines)
-        df.drop(df.columns[[6, 7, 8, 9, 10]], axis=1, inplace=True)  # Remove unnecessary columns
+        # df.drop(df.columns[[6]], axis=1, inplace=True)  # Remove unnecessary columns
         df = self.__parse_dataframe(df)
 
         return df
@@ -62,9 +85,9 @@ class MexcFuturesProxy(ExchangeProxy):
     def __parse_dataframe(self, df_klines):   
         
         df = df_klines.copy()
-        df.columns = ['open_timestamp', 'open', 'close', 'high', 'low', 'volume']                    
+        df.columns = ['open', 'close', 'high', 'low', 'volume', 'open_timestamp']                    
 
-        df['open_datetime'] = pd.to_datetime(df['open_timestamp'], unit='s')
+        df['open_datetime'] = pd.to_datetime(df['timestamp'], unit='ms')
         df = df.set_index('open_datetime')  
 
         df['open'] = df['open'].astype('float')
@@ -95,9 +118,10 @@ class MexcFuturesProxy(ExchangeProxy):
             for timeframe in tupple_tfs_aliases[0]:
 
                 stream = {
-                    "symbol": symbol,                  
+                    "id": self.__symbol_to_stream_id[(symbol,timeframe)],
+                    "symbol": symbol,                    
                     "interval": timeframe,
-                    "callback": self.__handle_socket_message
+                    "callback": self.__handle_socket_message,                    
                 }
                            
                 streams.append(stream)
@@ -107,33 +131,40 @@ class MexcFuturesProxy(ExchangeProxy):
 
     def __handle_socket_message(self, msg):    
         
-        """https://mxcdevelop.github.io/apidocs/contract_v1_en/#public-channels"""
-        
-        if ('channel' in msg) and ('push.kline' in msg['channel']):                
+        """https://viabtc.github.io/coinex_api_en_doc/futures/#docsfutures002_websocket022_kline_query"""
+        print(msg)
+        if ('id' in msg) and (msg['id'] > 1) and ('result' in msg) and (len(msg['result']) > 0):                
             self.__handle_data_event(msg)
 
         else: 
-            if ('channel' in msg) and (msg['channel'] == 'pong'):
+            if ('id' in msg) and (msg['id'] == 1):
                 print('pong received.')
+
+            elif msg['error']:               
+                #TODO: log error
+                print(msg['error'])
 
             else:              
                 #TODO: log error
                 print(msg)
 
+
     def __handle_data_event(self, msg): 
         
+        id = msg['id']  
+        symbol_timeframe = self.__stream_id_to_symbol[id]
+        symbol = symbol_timeframe[0]      
+        timeframe = symbol_timeframe[1]
         kline = msg['data']
-        symbol = kline['symbol']              
-        timeframe = kline['interval']
-                
+        
         candle = {
-            'open_timestamp': kline['t'],
-            'open_datetime': pd.to_datetime(kline['t'], unit='s'),
+            'open_timestamp': kline[0],
+            'open_datetime': pd.to_datetime(kline[0], unit='ms'),
             'open': kline['o'],
             'high': kline['h'],
             'low': kline['l'],
             'close': kline['c'],
-            'volume': kline['a']
+            'volume': kline['v']
         }
 
         row = pd.DataFrame.from_records(data=[candle], index='open_datetime')
@@ -152,17 +183,14 @@ class MexcFuturesProxy(ExchangeProxy):
 
 
     async def __initialize_socket_client(self):
+        await self.__socket_client.init()    
+           
 
-        await self.__socket_client.init()  
+    async def __subscribe_to_topics(self, list_topics: 'list[dict]'):     
 
-        loop = asyncio.get_event_loop()        
-        loop.create_task(self.__socket_client.ping())   
-          
-    async def __subscribe_to_topics(self, list_topics: 'list[dict]'):
-        
         loop = asyncio.get_event_loop()        
         for topic in list_topics:           
-            loop.create_task(self.__socket_client.kline_subscribe(**topic))                                  
+            loop.create_task(self.__socket_client.kline_subscribe(**topic))                    
             
 
 #%% Data methods.
