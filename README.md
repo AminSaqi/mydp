@@ -62,7 +62,9 @@ Here is a small example of the `config.json` file:
 ### Notes
 
 (1) Both USD-M and COIN-M are implemented, but separately (i.e. config names for binance futures: binance_futures_um, binance_futures_cm).
+
 (2) Max. 30 topics can be subscribed (Due to the exchange limitations).
+
 (3) Kucoin futures doesn't have a public websocket channel for klines. MyDP calls the REST endpoint every 2 seconds to emulate this websocket channel. So, mind the API rate limiting here (i.e. define max. 10 topics or so for kucoin futures).
 
 ## Features
