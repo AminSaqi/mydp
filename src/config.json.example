@@ -88,15 +88,19 @@
         "symbols": [
             {
                 "symbol": "ETH-USDT",
-                "aliases": [
-                    "WETH-USDC",
-                    "WETH-DAI",
-                    "WETH-USDT"
-                ],
+                "aliases": [],
+                "timeframes": ["1day"]
+            }
+        ]
+    },
+    {
+        "exchange": "kucoin_futures",
+        "symbols": [
+            {
+                "symbol": "XBTUSDTM",
+                "aliases": [],
                 "timeframes": [
-                    "1day",
-                    "4hour",
-                    "15min"
+                    "1day"
                 ]
             }
         ]

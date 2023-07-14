@@ -1,12 +1,12 @@
 [
     {
-        "exchange": "bingx_futures",
+        "exchange": "kucoin_futures",
         "symbols": [
             {
-                "symbol": "BTC-USDT",
+                "symbol": "XBTUSDTM",
                 "aliases": [],
                 "timeframes": [
-                    "1d"
+                    "1day"
                 ]
             }
         ]
