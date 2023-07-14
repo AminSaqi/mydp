@@ -15,6 +15,7 @@ from src.proxy import (
     CoinexFuturesProxy,
 
     KucoinSpotProxy, 
+    KucoinFuturesProxy,
 
     MexcSpotProxy,
     MexcFuturesProxy 
@@ -42,28 +43,38 @@ class DataManager():
 
     def __get_exchange_proxy(self, exchange: Exchange, symbols_config: 'list[dict]'):
 
+        # === Binance === #
+
         if exchange is Exchange.BinanceSpot:
             return BinanceSpotProxy(Exchange.BinanceSpot.value, symbols_config, self.__push_data_event_func)        
         elif exchange is Exchange.BinanceFuturesUm:
-            raise BinanceFuturesUmProxy(Exchange.BinanceFuturesUm.value, symbols_config, self.__push_data_event_func)
+            return BinanceFuturesUmProxy(Exchange.BinanceFuturesUm.value, symbols_config, self.__push_data_event_func)
         elif exchange is Exchange.BinanceFuturesCm:
-            raise BinanceFuturesCmProxy(Exchange.BinanceFuturesCm.value, symbols_config, self.__push_data_event_func)
+            return BinanceFuturesCmProxy(Exchange.BinanceFuturesCm.value, symbols_config, self.__push_data_event_func)
         
+        # === BingX === #
+
         elif exchange is Exchange.BingxSpot:
-            return NotImplementedError()
+            raise NotImplementedError()
         elif exchange is Exchange.BingxFutures:
             return BingxFuturesProxy(Exchange.BingxFutures.value, symbols_config, self.__push_data_event_func)  
         
+        # === Coinex === #
+
         elif exchange is Exchange.CoinexSpot:
             return CoinexSpotProxy(Exchange.CoinexSpot.value, symbols_config, self.__push_data_event_func)        
         elif exchange is Exchange.CoinexFutures:
             return CoinexFuturesProxy(Exchange.CoinexFutures.value, symbols_config, self.__push_data_event_func)
         
+        # === Kucoin === #
+
         elif exchange is Exchange.KucoinSpot:
             return KucoinSpotProxy(Exchange.KucoinSpot.value, symbols_config, self.__push_data_event_func)        
         elif exchange is Exchange.KucoinFutures:
-            raise NotImplementedError()
+            return KucoinFuturesProxy(Exchange.KucoinFutures.value, symbols_config, self.__push_data_event_func)  
         
+        # === Mexc === #
+
         elif exchange is Exchange.MexcSpot:
             return MexcSpotProxy(Exchange.MexcSpot.value, symbols_config, self.__push_data_event_func)        
         elif exchange is Exchange.MexcFutures:
