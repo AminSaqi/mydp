@@ -7,3 +7,4 @@ kucoin-python==1.0.11
 kucoin-futures-python==1.0.7
 nest-asyncio==1.4.2
 websockets==11.0.3
+aiohttp==3.8.1
