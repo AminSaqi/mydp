@@ -46,7 +46,7 @@ class BingxFuturesSocketClient:
                 try:                    
                     response = await self.__websocket.recv()  
                     dict_r = json.loads(response)     
-
+                    print(dict_r)
                     #TODO: check for ping and send pong.
                     #          
                     callback(dict_r)                
