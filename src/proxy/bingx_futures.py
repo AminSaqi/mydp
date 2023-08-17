@@ -131,22 +131,14 @@ class BingxFuturesProxy(ExchangeProxy):
 
     def __handle_socket_message(self, msg):    
         
-        """https://viabtc.github.io/coinex_api_en_doc/futures/#docsfutures002_websocket022_kline_query"""
+        """https://bingx-api.github.io/docs/#/swapV2/socket/market.html#Subscribe%20K-Line%20Data"""
         print(msg)
-        if ('id' in msg) and (msg['id'] > 1) and ('result' in msg) and (len(msg['result']) > 0):                
+        if ('code' in msg) and (msg['code'] == 0) and ('data' in msg) and (len(msg['data']) > 0):                
             self.__handle_data_event(msg)
 
-        else: 
-            if ('id' in msg) and (msg['id'] == 1):
-                print('pong received.')
-
-            elif msg['error']:               
-                #TODO: log error
-                print(msg['error'])
-
-            else:              
-                #TODO: log error
-                print(msg)
+        else:                         
+            #TODO: log error
+            print(msg)
 
 
     def __handle_data_event(self, msg): 
@@ -155,11 +147,11 @@ class BingxFuturesProxy(ExchangeProxy):
         symbol_timeframe = self.__stream_id_to_symbol[id]
         symbol = symbol_timeframe[0]      
         timeframe = symbol_timeframe[1]
-        kline = msg['data']
+        kline = msg['data'][0]
         
         candle = {
-            'open_timestamp': kline[0],
-            'open_datetime': pd.to_datetime(kline[0], unit='ms'),
+            'open_timestamp': kline['T'],
+            'open_datetime': pd.to_datetime(kline['T'], unit='ms'),
             'open': kline['o'],
             'high': kline['h'],
             'low': kline['l'],

@@ -20,8 +20,7 @@ class BingxFuturesApiClient:
                 url = '{}?symbol={}&interval={}&endTime={}&limit={}'.format(self.KLINES_ENDPOINT, symbol, timeframe, ts_now_plus_one_day, count)
 
                 async with session.get(url) as resp:
-                    r_json = await resp.json()   
-                    print(r_json['data'])                                    
+                    r_json = await resp.json()                                                       
                     return r_json['data']                    
 
             except Exception as ex:
