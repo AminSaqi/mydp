@@ -18,7 +18,7 @@ class BingxFuturesSocketClient:
         ssl_context.verify_mode = ssl.CERT_NONE
 
         self.__websocket = await websockets.connect(self.BASE_URL,
-                                                    compression='GZIP',
+                                                    compression='deflate',
                                                     ping_interval=None,                                                                                                        
                                                     ssl=ssl_context)    
 
