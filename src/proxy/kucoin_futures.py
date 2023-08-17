@@ -54,7 +54,7 @@ class KucoinFuturesProxy(ExchangeProxy):
         
         granularity = self.__get_granularity_from_timeframe(timeframe)
         klines = self.__api_client.get_kline_data(symbol=symbol, granularity=granularity)
-        df = pd.DataFrame(klines)        
+        df = pd.DataFrame(klines)                
         df = self.__parse_dataframe(df)
 
         return df

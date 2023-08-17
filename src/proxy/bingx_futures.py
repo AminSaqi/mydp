@@ -87,7 +87,7 @@ class BingxFuturesProxy(ExchangeProxy):
         df = df_klines.copy()
         df.columns = ['open', 'close', 'high', 'low', 'volume', 'open_timestamp']                    
 
-        df['open_datetime'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df['open_datetime'] = pd.to_datetime(df['open_timestamp'], unit='ms')
         df = df.set_index('open_datetime')  
 
         df['open'] = df['open'].astype('float')
