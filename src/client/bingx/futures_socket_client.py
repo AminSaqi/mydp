@@ -2,6 +2,8 @@
 import json
 import asyncio
 import ssl
+import gzip
+import io
 
 import websockets
 
@@ -18,16 +20,12 @@ class BingxFuturesSocketClient:
         ssl_context.verify_mode = ssl.CERT_NONE
 
         self.__websocket = await websockets.connect(self.BASE_URL,
-                                                    compression='deflate',
+                                                    compression=None,
                                                     ping_interval=None,                                                                                                        
                                                     ssl=ssl_context)    
 
 
-    async def kline_subscribe(self, id: str, symbol: str, interval: str, callback):            
-
-        pong_data = {
-            "dataType": "Pong"
-        }
+    async def kline_subscribe(self, id: str, symbol: str, interval: str, callback):                    
 
         sub_data = {
             "id": id,
@@ -35,7 +33,7 @@ class BingxFuturesSocketClient:
             "dataType": "{}@kline_{}".format(symbol, interval)                  
         }
 
-        pong_payload = json.dumps(pong_data)
+        pong_payload = "Pong"
         sub_payload = json.dumps(sub_data)
         
         try:
@@ -45,11 +43,17 @@ class BingxFuturesSocketClient:
             while True:
                 try:                    
                     response = await self.__websocket.recv()  
-                    dict_r = json.loads(response)     
-                    print(dict_r)
-                    #TODO: check for ping and send pong.
-                    #          
-                    callback(dict_r)                
+                    compressed_data = gzip.GzipFile(fileobj=io.BytesIO(response), mode='rb')
+                    decompressed_data = compressed_data.read()
+                    utf8_data = decompressed_data.decode('utf-8')                    
+
+                    if utf8_data == "Ping": # this is very important , if you receive 'Ping' you need to send 'Pong' 
+                        await self.__websocket.send(pong_payload)
+                    
+                    else:
+                        print(utf8_data)  #this is the message you need 
+                                
+                        callback(utf8_data)                
 
                 except Exception as ex:
                     print('exception from bingx_futures_socket_client.kline_subscribe: ', ex)                                  
