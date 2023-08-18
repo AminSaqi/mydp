@@ -62,7 +62,7 @@ class BingxFuturesSocketClient:
                 print('exception from bingx_futures_socket_client.kline_subscribe: ', ex_sub) 
 
 
-    def __decode_message(response):
+    def __decode_message(self, response):
 
         compressed_data = gzip.GzipFile(fileobj=io.BytesIO(response), mode='rb')
         decompressed_data = compressed_data.read()
