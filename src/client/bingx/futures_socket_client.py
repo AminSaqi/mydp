@@ -37,23 +37,19 @@ class BingxFuturesSocketClient:
             
             try:
                 await websocket.send(sub_payload)
-                response = await websocket.recv()  
-                print(response)
+                response = await websocket.recv() 
+                msg = self.__decode_message(response) 
+                print(msg)
             
                 while True:
                     try:                    
-                        response = await websocket.recv()  
-                        compressed_data = gzip.GzipFile(fileobj=io.BytesIO(response), mode='rb')
-                        decompressed_data = compressed_data.read()
-                        utf8_data = decompressed_data.decode('utf-8')                    
-
-                        if utf8_data == "Ping": # this is very important , if you receive 'Ping' you need to send 'Pong' 
-                            await websocket.send(pong_payload)
-                        
+                        response = await websocket.recv()                                            
+                        msg = self.__decode_message(response)
+                        if msg == "Ping": # this is very important , if you receive 'Ping' you need to send 'Pong' 
+                            await websocket.send(pong_payload)                        
                         else:
-                            print(utf8_data)  #this is the message you need 
-                                    
-                            callback(utf8_data)                                                        
+                            print(msg)  #this is the message you need                                     
+                            callback(msg)                                                        
 
                     except Exception as ex:
                         print('exception from bingx_futures_socket_client.kline_subscribe: ', ex)   
@@ -64,3 +60,12 @@ class BingxFuturesSocketClient:
             
             except Exception as ex_sub:
                 print('exception from bingx_futures_socket_client.kline_subscribe: ', ex_sub) 
+
+
+    def __decode_message(response):
+
+        compressed_data = gzip.GzipFile(fileobj=io.BytesIO(response), mode='rb')
+        decompressed_data = compressed_data.read()
+        utf8_data = decompressed_data.decode('utf-8')  
+
+        return utf8_data
