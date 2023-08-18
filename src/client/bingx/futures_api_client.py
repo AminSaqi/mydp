@@ -16,8 +16,8 @@ class BingxFuturesApiClient:
         async with aiohttp.ClientSession(connector=connector) as session:
 
             try:
-                ts_now_plus_one_day = (time.time_ns() // 1_000_000) + 86_400_000                
-                url = '{}?symbol={}&interval={}&endTime={}&limit={}'.format(self.KLINES_ENDPOINT, symbol, timeframe, ts_now_plus_one_day, count)
+                ts_now = (time.time_ns() // 1_000_000)               
+                url = '{}?symbol={}&interval={}&endTime={}&limit={}'.format(self.KLINES_ENDPOINT, symbol, timeframe, ts_now, count)
 
                 async with session.get(url) as resp:
                     r_json = await resp.json()                                                       

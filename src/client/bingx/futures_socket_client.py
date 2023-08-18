@@ -28,7 +28,7 @@ class BingxFuturesSocketClient:
                                                     ssl=self.__ssl_context):
             sub_data = {
                 "id": id,
-                "regType": "sub",
+                "reqType": "sub",
                 "dataType": "{}@kline_{}".format(symbol, interval)                  
             }
             
@@ -58,8 +58,7 @@ class BingxFuturesSocketClient:
 
     async def __handle_response(self, websocket, response, callback):
 
-        msg = self.__decode_message(response)
-        print(msg)
+        msg = self.__decode_message(response)       
         if msg == "Ping":
             await websocket.send("Pong")                        
         else:                                           

@@ -131,12 +131,15 @@ class BingxFuturesProxy(ExchangeProxy):
     def __handle_socket_message(self, msg):    
         
         """https://bingx-api.github.io/docs/#/swapV2/socket/market.html#Subscribe%20K-Line%20Data"""
-        print(msg)
-        if ('code' in msg) and (msg['code'] == 0) and ('data' in msg) and (len(msg['data']) > 0):                
-            self.__handle_data_event(msg)
-
-        else:                         
-            #TODO: log error
+        
+        msg = eval(msg)
+        if isinstance(msg, dict):
+            if ('code' in msg) and (msg['code'] == 0) and ('data' in msg) and (len(msg['data']) > 0):                
+                self.__handle_data_event(msg)
+            else:                         
+                #TODO: log error
+                print(msg)
+        else:
             print(msg)
 
 
