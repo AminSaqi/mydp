@@ -26,8 +26,8 @@ class BingxFuturesProxy(ExchangeProxy):
             { conf['symbol']: (conf['timeframes'], conf['aliases']) for conf in symbols_config }
         
         mappings = self.__create_streams_and_symbols_mappings()
-        self.__stream_id_to_symbol: 'dict[int, tuple[str, str]]' = mappings[0]
-        self.__symbol_to_stream_id: 'dict[tuple[str, str], int]' = mappings[1]            
+        self.__stream_id_to_symbol: 'dict[str, tuple[str, str]]' = mappings[0]
+        self.__symbol_to_stream_id: 'dict[tuple[str, str], str]' = mappings[1]            
 
         self.__push_data_event_func = push_data_event_func
 
@@ -47,10 +47,11 @@ class BingxFuturesProxy(ExchangeProxy):
 
         for symbol in self.__symbols_config:  
 
+            id_str = str(id)
             timeframes = self.__symbols_config[symbol][0]
             for timeframe in timeframes:
-                stream_id_to_symbol[id] = (symbol, timeframe)
-                symbol_to_stream_id[(symbol, timeframe)] = id
+                stream_id_to_symbol[id_str] = (symbol, timeframe)
+                symbol_to_stream_id[(symbol, timeframe)] = id_str
 
                 id += 1
 

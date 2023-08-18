@@ -49,6 +49,7 @@ class BingxFuturesSocketClient:
                         break                               
 
             except websockets.ConnectionClosed:
+                print('Connection closed. Reconnecting ...')
                 continue
             
             except Exception as ex_sub:
@@ -58,10 +59,10 @@ class BingxFuturesSocketClient:
     async def __handle_response(self, websocket, response, callback):
 
         msg = self.__decode_message(response)
-        if msg == "Ping": # this is very important , if you receive 'Ping' you need to send 'Pong' 
+        print(msg)
+        if msg == "Ping":
             await websocket.send("Pong")                        
-        else:
-            print(msg)  #this is the message you need                                     
+        else:                                           
             callback(msg) 
 
     def __decode_message(self, response):
