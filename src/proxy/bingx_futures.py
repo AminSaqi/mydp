@@ -43,17 +43,15 @@ class BingxFuturesProxy(ExchangeProxy):
         stream_id_to_symbol = {}
         symbol_to_stream_id = {}
 
-        id = 2
-
         for symbol in self.__symbols_config:  
-
-            id_str = str(id)
+            
             timeframes = self.__symbols_config[symbol][0]
             for timeframe in timeframes:
+
+                id_str = "{}@kline_{}".format(symbol, timeframe)
+
                 stream_id_to_symbol[id_str] = (symbol, timeframe)
                 symbol_to_stream_id[(symbol, timeframe)] = id_str
-
-                id += 1
 
         return stream_id_to_symbol, symbol_to_stream_id
 
@@ -132,9 +130,10 @@ class BingxFuturesProxy(ExchangeProxy):
         
         """https://bingx-api.github.io/docs/#/swapV2/socket/market.html#Subscribe%20K-Line%20Data"""
         
+        msg = msg.replace('null', 'None')
         msg = eval(msg)
         if isinstance(msg, dict):
-            if ('code' in msg) and (msg['code'] == 0) and ('data' in msg) and (len(msg['data']) > 0):                
+            if ('code' in msg) and (msg['code'] == 0) and ('data' in msg) and (msg['data'] is not None) and (len(msg['data']) > 0):                
                 self.__handle_data_event(msg)
             else:                         
                 #TODO: log error
@@ -145,7 +144,7 @@ class BingxFuturesProxy(ExchangeProxy):
 
     def __handle_data_event(self, msg): 
         
-        id = msg['id']  
+        id = msg['dataType']    
         symbol_timeframe = self.__stream_id_to_symbol[id]
         symbol = symbol_timeframe[0]      
         timeframe = symbol_timeframe[1]
