@@ -104,9 +104,7 @@ class BingxFuturesProxy(ExchangeProxy):
 #%% Socket setup.
 
 
-    async def __connect_to_data_streams(self):        
-        
-        await self.__initialize_socket_client()     
+    async def __connect_to_data_streams(self):               
 
         streams = []
         
@@ -171,11 +169,7 @@ class BingxFuturesProxy(ExchangeProxy):
         candle['open_datetime'] = str(candle['open_datetime'])      
 
         loop = asyncio.get_event_loop()
-        loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))
-
-
-    async def __initialize_socket_client(self):
-        await self.__socket_client.init()    
+        loop.create_task(self.__push_data_event_func(self.__exchange_name, symbol, timeframe, candle))   
            
 
     async def __subscribe_to_topics(self, list_topics: 'list[dict]'):     
