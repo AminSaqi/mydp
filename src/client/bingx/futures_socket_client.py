@@ -31,25 +31,18 @@ class BingxFuturesSocketClient:
                 "regType": "sub",
                 "dataType": "{}@kline_{}".format(symbol, interval)                  
             }
-
-            pong_payload = "Pong"
+            
             sub_payload = json.dumps(sub_data)
             
             try:
                 await websocket.send(sub_payload)
                 response = await websocket.recv() 
-                msg = self.__decode_message(response) 
-                print(msg)
+                await self.__handle_response(websocket, response, callback)
             
                 while True:
                     try:                    
                         response = await websocket.recv()                                            
-                        msg = self.__decode_message(response)
-                        if msg == "Ping": # this is very important , if you receive 'Ping' you need to send 'Pong' 
-                            await websocket.send(pong_payload)                        
-                        else:
-                            print(msg)  #this is the message you need                                     
-                            callback(msg)                                                        
+                        await self.__handle_response(websocket, response, callback)
 
                     except Exception as ex:
                         print('exception from bingx_futures_socket_client.kline_subscribe: ', ex)   
@@ -61,6 +54,15 @@ class BingxFuturesSocketClient:
             except Exception as ex_sub:
                 print('exception from bingx_futures_socket_client.kline_subscribe: ', ex_sub) 
 
+
+    async def __handle_response(self, websocket, response, callback):
+
+        msg = self.__decode_message(response)
+        if msg == "Ping": # this is very important , if you receive 'Ping' you need to send 'Pong' 
+            await websocket.send("Pong")                        
+        else:
+            print(msg)  #this is the message you need                                     
+            callback(msg) 
 
     def __decode_message(self, response):
 
