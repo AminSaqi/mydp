@@ -14,5 +14,5 @@ class ExchangeProxy(ABC):
         pass
 
     @abstractmethod
-    def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame]:
+    def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame] | ServiceResult[dict[pd.DataFrame]]:
         pass

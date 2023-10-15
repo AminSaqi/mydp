@@ -19,11 +19,19 @@ class ServiceResult(Generic[T]):
 
 class ApiResult(ServiceResult[Dict]):
     
-    def __init__(self, service_result: ServiceResult[pd.DataFrame]=None, success: bool = None, result: Dict = None, message: str = None):    
+    def __init__(self, service_result: ServiceResult[pd.DataFrame] | ServiceResult[dict[pd.DataFrame]]=None, success: bool = None, result: Dict = None, message: str = None):    
 
         if service_result:    
             self.success = service_result.success
-            self.result = service_result.result.to_dict(orient="records") if (service_result.result is not None) else {}
+
+            if type(service_result.result) is pd.DataFrame:
+                self.result = service_result.result.to_dict(orient="records") if (service_result.result is not None) else {}
+            else:
+                dict_result = {}
+                for key, df in service_result.result.items():
+                    dict_result[key] = df.to_dict(orient="records") if (service_result.result is not None) else {}
+                self.result = dict_result
+
             self.message = service_result.message
         else:
             self.success = success
