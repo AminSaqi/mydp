@@ -175,6 +175,13 @@ class KucoinFuturesProxy(ExchangeProxy):
 #%% Data methods.
 
 
+    def __get_all_symbol_configs(self): 
+        dict_keys = {}
+        for key in self.__symbols_config:
+            dict_keys[key] = key
+
+        return dict_keys
+    
     def __get_symbol_config(self, symbol_name):        
 
         if symbol_name in self.__symbols_config:
@@ -189,30 +196,49 @@ class KucoinFuturesProxy(ExchangeProxy):
         return None, None
 
 
-    def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame]:
+    def get_candles(self, symbol_name: str, timeframe: str, count: int) -> ServiceResult[pd.DataFrame] | ServiceResult[dict[pd.DataFrame]]:
 
-        result = ServiceResult[pd.DataFrame]()
+        list_symbols = symbol_name.split(',')       
 
-        config_key, symbol_config = self.__get_symbol_config(symbol_name)     
+        result = None
+        if (len(list_symbols) == 1) and ('ALL' not in list_symbols):
+            result = ServiceResult[pd.DataFrame](success=False)
+        else:
+            result = ServiceResult[dict[pd.DataFrame]](success=False)
 
-        if symbol_config is None:
-            result.success = False
-            result.message = error.INVALID_SYMBOL
+        if (len(list_symbols) > 1) and ('ALL' in list_symbols):            
+            result.message="Invalid 'symbol'."
             return result
 
-        if timeframe not in symbol_config[0]:
-            result.success = False
-            result.message = error.INVALID_TIMEFRAME
+        dict_keys = {}
+
+        if 'ALL' in list_symbols:
+            dict_keys = self.__get_all_symbol_configs()
+        else:
+            for symbol in list_symbols:
+                config_key, symbol_config = self.__get_symbol_config(symbol)     
+                if symbol_config is not None:
+                    if timeframe in symbol_config[0]:
+                        dict_keys[symbol] = config_key
+
+        if len(dict_keys) == 0:                                
+            result.message = error.INVALID_SYMBOL_OR_TIMEFRAME
             return result
 
-        key = (config_key, timeframe)
-        df = self.__data[key].tail(count).copy()
-        df = df.reset_index()
-        df = df[['open_timestamp', 'open_datetime', 'open', 'high', 'low', 'close', 'volume']]  
+        dfs = {}
+        for symbol, config_key in dict_keys.items():                  
+            data_key = (config_key, timeframe)
+            df = self.__data[data_key].tail(count).copy()
+            df = df.reset_index()
+            df = df[['open_timestamp', 'open_datetime', 'open', 'high', 'low', 'close', 'volume']] 
+            dfs[symbol] = df
 
-        result.success = True
-        result.result = df
+        if len(dfs) == 1:
+            result.result = dfs.pop(list(dfs.keys())[0])
+        else:
+            result.result = dfs
 
+        result.success = True     
         return result
         
         
