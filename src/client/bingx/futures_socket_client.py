@@ -34,26 +34,30 @@ class BingxFuturesSocketClient:
             
             sub_payload = json.dumps(sub_data)
             
-            try:
-                await websocket.send(sub_payload)
-                response = await websocket.recv() 
-                await self.__handle_response(websocket, response, callback)
-            
-                while True:
-                    try:                    
-                        response = await websocket.recv()                                            
-                        await self.__handle_response(websocket, response, callback)
+            while True:
 
-                    except Exception as ex:
-                        print('exception from bingx_futures_socket_client.kline_subscribe: ', ex)   
-                        break                               
+                try:
+                    await websocket.send(sub_payload)
+                    response = await websocket.recv() 
+                    await self.__handle_response(websocket, response, callback)
+                
+                    while True:
+                        try:                    
+                            response = await websocket.recv()                                            
+                            await self.__handle_response(websocket, response, callback)
 
-            except websockets.ConnectionClosed:
-                print('Connection closed. Reconnecting ...')
-                continue
-            
-            except Exception as ex_sub:
-                print('exception from bingx_futures_socket_client.kline_subscribe: ', ex_sub) 
+                        except Exception as ex:
+                            print('exception from bingx_futures_socket_client.kline_subscribe: ', ex)   
+                            break                               
+
+                except websockets.ConnectionClosed:
+                    print('Connection closed. Reconnecting ...')
+                    continue
+                
+                except Exception as ex_sub:
+                    print('exception from bingx_futures_socket_client.kline_subscribe: ', ex_sub) 
+
+                await asyncio.sleep(3)
 
 
     async def __handle_response(self, websocket, response, callback):
