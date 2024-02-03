@@ -51,13 +51,12 @@ class BingxFuturesSocketClient:
                             break                               
 
                 except websockets.ConnectionClosed:
-                    print('Connection closed. Reconnecting ...')
-                    continue
+                    print('Connection closed. Reconnecting {}@{} ...'.format(symbol, interval))                    
                 
                 except Exception as ex_sub:
                     print('exception from bingx_futures_socket_client.kline_subscribe: ', ex_sub) 
 
-                await asyncio.sleep(3)
+                await asyncio.sleep(5)
 
 
     async def __handle_response(self, websocket, response, callback):
