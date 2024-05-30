@@ -179,7 +179,8 @@ class BingxFuturesProxy(ExchangeProxy):
 
         loop = asyncio.get_event_loop()        
         for topic in list_topics:           
-            loop.create_task(self.__socket_client.kline_subscribe(**topic))                    
+            loop.create_task(self.__socket_client.kline_subscribe(**topic))      
+            await asyncio.sleep(0.3)              
             
 
 #%% Data methods.
